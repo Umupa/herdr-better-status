@@ -1,0 +1,9 @@
+Better Status for Herdr
+
+mods/better-status/main.js is adapted from herdr-app's
+defaults/mods/workspace-status/main.js at herdr-app 0.1.15 (commit
+17eac390c346a731ba1ac14816ad91dc7cd2209b), https://github.com/herdrdev/herdr-app,
+licensed under Apache-2.0 (LICENSE). Changes are marked "better-status".
+
+mods/better-status/icons/*.svg are Lucide, https://lucide.dev (ISC,
+mods/better-status/icons/LICENSE).
