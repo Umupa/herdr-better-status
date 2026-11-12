@@ -83,7 +83,7 @@ export default class BetterStatus extends View {
     }
     const p = this.phrase();
     return div().id("bs-phrase").flex_none().cursor_pointer()
-      .text_color(p ? t.foreground : t.dim).when(Boolean(p), (el) => el.font_medium())
+      .text_color(p ? t.foreground : t.dim)
       .hover((s) => s.text_color(p ? t.foreground : t.muted))
       .on_click((_e, cx) => this.edit(cx))
       .child(p ? short(p) : "+ One thing");
@@ -96,7 +96,6 @@ export default class BetterStatus extends View {
     const needs = list.filter(a => a.status === "blocked").length;
     const label = (icon, text) => h_flex().gap(6).items_center().child(svg(`mods/workspace-chrome/${icon}.svg`).size(13)).child(text);
     // better-status: Herdr's items on the left; yours on the right, phrase then time.
-    const bar = () => div().w(1).h(12).flex_none().bg(t.border);
     return h_flex().size_full().px(14).gap(16).items_center().bg(t.chrome).border_t(1).border_color(t.border).text_size(11.8).text_color(t.muted)
       .child(label(space?.machine ? "server" : "monitor", space?.machine ?? "This computer"))
       .when(Boolean(space?.branch), el => el.child(label("branch", space.branch)))
@@ -104,11 +103,11 @@ export default class BetterStatus extends View {
         .when(needs > 0, el => el.child(div().text_color(t.blocked).child(`· ${needs} needs you`))))
       .child(div().flex_1())
       .child(div().id("palette").flex_none().text_color(t.dim).on_click(() => run("app.palette")).child(this.hint(t)))
-      .child(bar())
+      .child(div().w(8))
       .child(this.phrasePart(t))
-      .child(bar())
+      .child(div().w(8))
       .child(h_flex().flex_none().gap(8).items_center()
-        .child(div().text_color(t.foreground).font_medium().child(this.now.date))
-        .child(div().text_color(t.foreground).font_medium().child(this.now.time)));
+        .child(div().child(this.now.date))
+        .child(div().child(this.now.time)));
   }
 }
