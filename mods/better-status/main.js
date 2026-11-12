@@ -12,7 +12,7 @@ const DAYS = ["周日", "周一", "周二", "周三", "周四", "周五", "周�
 
 function clock(d) {
   const pad = (n) => String(n).padStart(2, "0");
-  return { date: `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${DAYS[d.getDay()]}`, time: `${pad(d.getHours())}:${pad(d.getMinutes())}` };
+  return { date: `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${DAYS[d.getDay()]}`, time: `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}` };
 }
 
 // truncate() measures this text as zero wide in a row, so cut long phrases here.
@@ -23,7 +23,7 @@ function short(p, max = 60) {
 
 export default class BetterStatus extends View {
   init(_props, cx) {
-    // better-status: redraw only when the minute changes.
+    // better-status: redraw each second, for the clock.
     this.now = clock(new Date());
     cx.timer.every(1000, (cx) => {
       const now = clock(new Date());
@@ -83,8 +83,8 @@ export default class BetterStatus extends View {
     }
     const p = this.phrase();
     return div().id("bs-phrase").flex_none().cursor_pointer()
-      .text_color(p ? t.foreground : t.dim)
-      .hover((s) => s.text_color(p ? t.foreground : t.muted))
+      .text_color(p ? t.muted : t.dim)
+      .hover((s) => s.text_color(t.foreground))
       .on_click((_e, cx) => this.edit(cx))
       .child(p ? short(p) : "+ One thing");
   }
@@ -108,6 +108,6 @@ export default class BetterStatus extends View {
       .child(div().w(8))
       .child(h_flex().flex_none().gap(8).items_center()
         .child(div().child(this.now.date))
-        .child(div().child(this.now.time)));
+        .child(div().w(52).child(this.now.time)));  // fixed width: digits differ, so the row would shift each second
   }
 }
