@@ -12,7 +12,7 @@ const DAYS = ["周日", "周一", "周二", "周三", "周四", "周五", "周�
 
 function clock(d) {
   const pad = (n) => String(n).padStart(2, "0");
-  return { date: `${d.getMonth() + 1}月${d.getDate()}日 ${DAYS[d.getDay()]}`, time: `${pad(d.getHours())}:${pad(d.getMinutes())}` };
+  return { date: `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${DAYS[d.getDay()]}`, time: `${pad(d.getHours())}:${pad(d.getMinutes())}` };
 }
 
 // truncate() measures this text as zero wide in a row, so cut long phrases here.
@@ -108,7 +108,7 @@ export default class BetterStatus extends View {
       .child(this.phrasePart(t))
       .child(bar())
       .child(h_flex().flex_none().gap(8).items_center()
-        .child(div().text_color(t.muted).child(this.now.date))
+        .child(div().text_color(t.foreground).font_medium().child(this.now.date))
         .child(div().text_color(t.foreground).font_medium().child(this.now.time)));
   }
 }
