@@ -199,8 +199,8 @@ export default class BetterStatus extends View {
         .on_click((_e, cx) => { this.coloring = !this.coloring; cx.notify(); })
         .child(svg(ICON("calendar")).size(13).text_color(color))
         .child(this.now.date)
-        // fixed width: digits differ, so the row would shift each second
-        .child(div().w(52).child(this.now.time)));
+        // Keep wide digit pairs on one line without shifting the row each second.
+        .child(div().w(64).flex_none().whitespace_nowrap().child(this.now.time)));
   }
 
   render() {

@@ -4,7 +4,7 @@ Herdr's status bar with CPU and memory, one line of your own (One Thing style), 
 
 **What you see:**
 
-- One 28px row, `t.chrome` background, top border, 11.8px text. Left (`t.muted`): machine, branch, agent count, unchanged from Herdr's `workspace-status`. A flexible gap. Right, 20px apart: the palette hint (`t.dim`); `CPU` with 14 bars (2px wide, 1px apart, up to 10px tall, `t.dim`) and a percentage; `MEM` with a 28×4px meter (`t.border` track, `t.muted` fill) and a percentage; a 13px Lucide `target` and your line; a 13px Lucide `calendar`, `MM-DD 周X` and `HH:MM:SS` in a 52px box so the row doesn't shift each second.
+- One 28px row, `t.chrome` background, top border, 11.8px text. Left (`t.muted`): machine, branch, agent count, unchanged from Herdr's `workspace-status`. A flexible gap. Right, 20px apart: the palette hint (`t.dim`); `CPU` with 14 bars (2px wide, 1px apart, up to 10px tall, `t.dim`) and a percentage; `MEM` with a 28×4px meter (`t.border` track, `t.muted` fill) and a percentage; a 13px Lucide `target` and your line; a 13px Lucide `calendar`, `MM-DD 周X` and `HH:MM:SS` in a fixed 64px box that cannot shrink or wrap, so wide digit pairs stay on one line and the row doesn't shift each second.
 - Labels are `t.dim`, values `t.muted`. Your line and the date default to `t.muted`; each can instead be one of `#8b7cf6 #5b8def #22b8cf #3fae6a #e3a73f #e3814f #e5604d #d9649a`. With no line: a `t.dim` "One thing".
 
 **How it behaves:**
