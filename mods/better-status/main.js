@@ -8,11 +8,14 @@ import { spaces, agents, theme, run, window, keys, shared, setShared } from "her
 
 // better-status: the phrase lives in shared storage, which Herdr keeps across restarts.
 const KEY = "better-status.phrase";
+const COLOR = "better-status.color";
+// null is the bar's own gray; the rest match better-icons.
+const COLORS = [null, "#8b7cf6", "#5b8def", "#22b8cf", "#3fae6a", "#e3a73f", "#e3814f", "#e5604d", "#d9649a"];
 const DAYS = ["周日", "周一", "周二", "周三", "周四", "周五", "周六"];
 
 function clock(d) {
   const pad = (n) => String(n).padStart(2, "0");
-  return { date: `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${DAYS[d.getDay()]}`, time: `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}` };
+  return { date: `${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${DAYS[d.getDay()]}`, time: `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}` };
 }
 
 // truncate() measures this text as zero wide in a row, so cut long phrases here.
@@ -32,12 +35,30 @@ export default class BetterStatus extends View {
     this.editing = false;
     this.input = InputState.new({ placeholder: "Your one thing" });
     this.input.on("submit", (_e, cx) => this.save(cx));
-    this.input.on("blur", (_e, cx) => { if (this.editing) this.save(cx); });
+    this.input.on("focus", () => { this.focused = true; });
+    // Clicking a color dot blurs the input for a moment; save only if focus stays away.
+    this.input.on("blur", (_e, cx) => {
+      this.focused = false;
+      cx.timer.after(200, (cx) => { if (this.editing && !this.focused) this.save(cx); });
+    });
   }
 
   phrase() {
     const p = shared(KEY);
     return typeof p === "string" ? p : "";
+  }
+
+  color() {
+    const c = shared(COLOR);
+    return COLORS.includes(c) ? c : null;
+  }
+
+  pick(c, cx) {
+    setShared(COLOR, c);
+    this.focused = true;
+    this.input.focus();
+    cx.stop_propagation();
+    cx.notify();
   }
 
   edit(cx) {
@@ -75,16 +96,23 @@ export default class BetterStatus extends View {
   // better-status: the phrase, or a faint "+ One thing"; click to edit in place.
   phrasePart(t) {
     if (this.editing) {
-      return h_flex().id("bs-edit").flex_none().w(320).h(20).px(7).items_center().rounded(5)
-        .border_1().border_color(t.accent).bg(t.background).cursor_text()
-        .on_mouse_down("left", (_e, cx) => cx.stop_propagation())
-        .on_key_down((e, cx) => { if (e.key === "escape") { this.cancel(cx); cx.stop_propagation(); } })
-        .child(Input.new(this.input).w_full().text_size(11.8).text_color(t.foreground));
+      const now = this.color();
+      const dot = (c, i) => div().id(`bs-c${i}`).size(12).flex_none().rounded(6).cursor_pointer()
+        .border_1().border_color(c === now ? t.foreground : "#00000000")
+        .child(div().size_full().rounded(6).border_2().border_color(t.chrome).bg(c ?? t.muted))
+        .on_mouse_down("left", (_e, cx) => this.pick(c, cx));
+      return h_flex().flex_none().gap(10).items_center()
+        .child(h_flex().id("bs-edit").flex_none().w(300).h(20).px(7).items_center().rounded(5)
+          .border_1().border_color(t.accent).bg(t.background).cursor_text()
+          .on_mouse_down("left", (_e, cx) => cx.stop_propagation())
+          .on_key_down((e, cx) => { if (e.key === "escape") { this.cancel(cx); cx.stop_propagation(); } })
+          .child(Input.new(this.input).w_full().text_size(11.8).text_color(t.foreground)))
+        .child(h_flex().gap(4).items_center().children(COLORS.map(dot)));
     }
     const p = this.phrase();
     return div().id("bs-phrase").flex_none().cursor_pointer()
-      .text_color(p ? t.muted : t.dim)
-      .hover((s) => s.text_color(t.foreground))
+      .text_color(p ? (this.color() ?? t.muted) : t.dim)
+      .hover((s) => s.opacity(0.8))
       .on_click((_e, cx) => this.edit(cx))
       .child(p ? short(p) : "+ One thing");
   }
