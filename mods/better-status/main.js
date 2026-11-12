@@ -8,11 +8,11 @@ import { spaces, agents, theme, run, window, keys, shared, setShared } from "her
 
 // better-status: the phrase lives in shared storage, which Herdr keeps across restarts.
 const KEY = "better-status.phrase";
-const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const DAYS = ["周日", "周一", "周二", "周三", "周四", "周五", "周六"];
 
 function clock(d) {
   const pad = (n) => String(n).padStart(2, "0");
-  return `${DAYS[d.getDay()]} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  return { date: `${d.getMonth() + 1}月${d.getDate()}日 ${DAYS[d.getDay()]}`, time: `${pad(d.getHours())}:${pad(d.getMinutes())}` };
 }
 
 // truncate() measures this text as zero wide in a row, so cut long phrases here.
@@ -27,7 +27,7 @@ export default class BetterStatus extends View {
     this.now = clock(new Date());
     cx.timer.every(1000, (cx) => {
       const now = clock(new Date());
-      if (now !== this.now) { this.now = now; cx.notify(); }
+      if (now.time !== this.now.time || now.date !== this.now.date) { this.now = now; cx.notify(); }
     });
     this.editing = false;
     this.input = InputState.new({ placeholder: "Your one thing" });
@@ -83,7 +83,7 @@ export default class BetterStatus extends View {
     }
     const p = this.phrase();
     return div().id("bs-phrase").flex_none().cursor_pointer()
-      .text_color(p ? t.foreground : t.dim)
+      .text_color(p ? t.foreground : t.dim).when(Boolean(p), (el) => el.font_medium())
       .hover((s) => s.text_color(p ? t.foreground : t.muted))
       .on_click((_e, cx) => this.edit(cx))
       .child(p ? short(p) : "+ One thing");
@@ -107,6 +107,8 @@ export default class BetterStatus extends View {
       .child(bar())
       .child(this.phrasePart(t))
       .child(bar())
-      .child(div().flex_none().text_color(t.foreground).child(this.now));
+      .child(h_flex().flex_none().gap(8).items_center()
+        .child(div().text_color(t.muted).child(this.now.date))
+        .child(div().text_color(t.foreground).font_medium().child(this.now.time)));
   }
 }
