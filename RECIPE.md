@@ -2,6 +2,8 @@
 
 Herdr's status bar with CPU and memory, one line of your own (One Thing style), and the date and time, on the right; Herdr's machine, branch and agent count stay on the left.
 
+![Better Status](preview.png)
+
 **What you see:**
 
 - One 28px row, `t.chrome` background, top border, 11.8px text. Left (`t.muted`): machine, branch, agent count, unchanged from Herdr's `workspace-status`. A flexible gap. Right, 20px apart: the palette hint (`t.dim`); `CPU` with 14 bars (2px wide, 1px apart, up to 10px tall, `t.dim`) and a percentage; `MEM` with a 28×4px meter (`t.border` track, `t.muted` fill) and a percentage; a 13px Lucide `target` and your line; a 13px Lucide `calendar`, `MM-DD 周X` and `HH:MM:SS` in a fixed 64px box that cannot shrink or wrap, so wide digit pairs stay on one line and the row doesn't shift each second.
