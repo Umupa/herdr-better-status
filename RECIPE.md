@@ -15,6 +15,7 @@ Herdr's status bar with CPU and memory, one line of your own (One Thing style), 
 - Click the date: the same dots appear to its left; a pick applies and closes them; clicking the date again closes them.
 - The clock redraws each second. CPU and memory are sampled every 2 seconds: macOS `ps -A -o %cpu=` summed / `hw.ncpu`, memory (anonymous − purgeable + wired + compressor pages) / `hw.memsize` from `vm_stat`; Linux `/proc/stat` deltas and `MemAvailable`/`MemTotal`. Elsewhere the meters are hidden.
 - Shared keys: `better-status.phrase`, `better-status.color`, `better-status.clockColor`.
+- When the shown layout (`layout()`) has a `better-awake` block (usually headless, 1px), a 13px cup sits left of your line, drawn as Better Awake draws it from `shared("better-awake")`; click runs `better-awake.toggle`, right-click `better-awake.agents`. Without one, nothing changes.
 
 **Built from:**
 

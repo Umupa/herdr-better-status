@@ -10,6 +10,7 @@
 - **你的一件事**：点击编辑，可选颜色
 - **日期和时间**，带秒；点击可选颜色
 - Herdr 自带的机器、分支、agent 数量仍在左边
+- 布局里装了 [Better Awake](https://github.com/Umupa/herdr-better-awake) 时，它的咖啡杯显示在「你的一件事」左侧
 
 ## 让 agent 安装
 

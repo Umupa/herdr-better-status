@@ -4,7 +4,7 @@
 
 import { View, div, svg } from "gpui-kit";
 import { h_flex, InputState, Input } from "gpui-base";
-import { spaces, agents, theme, run, window, keys, shared, setShared, exec } from "herdr";
+import { spaces, agents, theme, run, window, keys, shared, setShared, exec, layout } from "herdr";
 
 // better-status: everything is kept in shared storage, which Herdr keeps across restarts.
 const KEY = "better-status.phrase";
@@ -59,6 +59,22 @@ async function sample(platform, last) {
     return { cpu, mem: 100 * (1 - kb("MemAvailable") / Math.max(1, kb("MemTotal"))), idle, sum };
   }
   return null;
+}
+
+// better-status: with a headless better-awake block in the layout, its cup sits left of your line.
+// https://github.com/Umupa/herdr-better-awake owns the hold; this only draws the cup and sends commands.
+function usesMod(node, name) {
+  if (!node || typeof node !== "object") return false;
+  if (node.content?.mod === name) return true;
+  return (node.children ?? []).some((c) => usesMod(c, name));
+}
+
+function awakeTip(s) {
+  const scope = s.cup === "off" ? (shared("better-awake.scope") === "system" ? "system" : "display") : s.scope;
+  const what = scope === "system" ? "the system" : "the display";
+  if (s.cup === "on" && s.mode === "agents") return `Keeping ${what} awake until agents finish`;
+  if (s.cup === "on") return `Keeping ${what} awake · Right-click: until agents finish`;
+  return `Keep ${what} awake · Right-click: until agents finish`;
 }
 
 const clamp = (v) => Math.max(0, Math.min(100, Number.isFinite(v) ? v : 0));
@@ -169,6 +185,24 @@ export default class BetterStatus extends View {
       .child(h_flex().gap(6).items_center().child("MEM").child(meter).child(value(this.mem ?? 0)));
   }
 
+  // better-status: better-awake's cup, drawn the way better-awake draws it.
+  awakePart(t) {
+    if (!usesMod(layout(), "better-awake")) return null;
+    const raw = shared("better-awake");
+    const s = raw && typeof raw === "object" ? raw : { cup: "off" };
+    const on = s.cup === "on";
+    const color = on ? t.accent : s.cup === "pending" ? t.dim : t.muted;
+    return h_flex().id("bs-awake").flex_none().h(20).px(4).mx(-4).items_center().cursor_pointer().rounded(4)
+      .hover((st) => st.bg(t.hover))
+      .tooltip(awakeTip(s))
+      .on_click(() => run("better-awake.toggle"))
+      .on_mouse_down("right", (_e, cx) => { cx.stop_propagation(); run("better-awake.agents"); })
+      .child(div().relative()
+        .child(svg(`mods/better-awake/icons/${on ? "cup-full" : "cup"}.svg`).size(13).text_color(color))
+        .when(on && s.mode === "agents", (el) => el.child(
+          div().absolute().right(-1).bottom(0).size(6).rounded(3).border_1().border_color(t.chrome).bg(color))));
+  }
+
   // better-status: the phrase, or a faint "One thing"; click to edit in place.
   phrasePart(t) {
     if (this.editing) {
@@ -210,6 +244,7 @@ export default class BetterStatus extends View {
     const needs = list.filter(a => a.status === "blocked").length;
     const label = (icon, text) => h_flex().gap(6).items_center().child(svg(`mods/workspace-chrome/${icon}.svg`).size(13)).child(text);
     const meters = this.meters(t);
+    const awake = this.awakePart(t);
     // better-status: Herdr's items on the left; yours on the right.
     return h_flex().size_full().px(14).gap(20).items_center().bg(t.chrome).border_t(1).border_color(t.border).text_size(11.8).text_color(t.dim)
       .child(h_flex().gap(16).items_center().text_color(t.muted)
@@ -220,6 +255,7 @@ export default class BetterStatus extends View {
       .child(div().flex_1())
       .child(div().id("palette").flex_none().on_click(() => run("app.palette")).child(this.hint(t)))
       .when(Boolean(meters), (el) => el.child(meters))
+      .when(Boolean(awake), (el) => el.child(awake))
       .child(this.phrasePart(t))
       .child(this.clockPart(t));
   }

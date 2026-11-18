@@ -10,6 +10,7 @@ A quieter status bar for [Herdr](https://herdr.dev): CPU and memory, one line of
 - **Your one thing**: click to edit, pick a color
 - **Date and time** with seconds; click to pick a color
 - Herdr's machine, branch and agents stay on the left
+- With [Better Awake](https://github.com/Umupa/herdr-better-awake) in the layout, its coffee cup sits left of your one thing
 
 ## Install for agent
 
